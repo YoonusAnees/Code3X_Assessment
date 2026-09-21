@@ -462,9 +462,9 @@ export function LoginPage() {
           <Stack
             direction="row"
             spacing={3}
-            justifyContent="center"
             sx={{
               alignSelf: "center",
+              justifyContent: "center",
             }}
           >
             <SocialButton
@@ -535,10 +535,10 @@ export function LoginPage() {
         }}
       >
         <Stack
-          alignItems="center"
           sx={{
             width: "100%",
             maxWidth: 590,
+            alignItems: "center",
           }}
         >
           <Box
