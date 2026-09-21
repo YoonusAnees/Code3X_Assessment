@@ -111,6 +111,8 @@ export function TokenPage() {
                   fontSize: 13,
                 }}
               >
+                Your access token is shown below.
+                <br />
                 {token}
               </Box>
             )}
