@@ -1,58 +1,154 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Alert,
   Box,
   Button,
-  Checkbox,
   CircularProgress,
   Divider,
-  FormControlLabel,
   IconButton,
   InputAdornment,
   Link,
-  Paper,
   Snackbar,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 
-import { Google, Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  Apple,
+  Facebook,
+  Google,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
 
 import { signInWithPopup } from "firebase/auth";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+
+import loginIllustration from "../assets/login-illustration.svg";
 import { auth, googleProvider } from "../config/firebase";
 
 type LoginFormValues = {
   email: string;
   password: string;
-  rememberMe: boolean;
 };
+
+type SocialButtonProps = {
+  label: string;
+  children: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+};
+
+const green = "#85c67a";
+
+const fieldStyles = {
+  "& .MuiOutlinedInput-root": {
+    minHeight: 48,
+    borderRadius: 99,
+    backgroundColor: "#ffffff",
+    fontSize: 13,
+
+    "& fieldset": {
+      borderColor: "#919191",
+    },
+
+    "&:hover fieldset": {
+      borderColor: "#333333",
+    },
+
+    "&.Mui-focused fieldset": {
+      borderColor: green,
+      borderWidth: 2,
+    },
+  },
+
+  "& .MuiOutlinedInput-input": {
+    paddingLeft: 2.5,
+    paddingRight: 2.5,
+    paddingTop: 1.4,
+    paddingBottom: 1.4,
+  },
+
+  "& .MuiFormHelperText-root": {
+    marginLeft: 2.5,
+  },
+};
+
+function SocialButton({
+  label,
+  children,
+  onClick,
+  disabled,
+}: SocialButtonProps) {
+  return (
+    <IconButton
+      aria-label={label}
+      onClick={onClick}
+      disabled={disabled}
+      sx={{
+        width: 52,
+        height: 52,
+        backgroundColor: "#050505",
+        color: "#ffffff",
+
+        transition:
+          "transform 160ms ease, background-color 160ms ease",
+
+        "&:hover": {
+          backgroundColor: "#272727",
+          transform: "translateY(-2px)",
+        },
+
+        "&.Mui-disabled": {
+          backgroundColor: "#555555",
+          color: "#ffffff",
+        },
+      }}
+    >
+      {children}
+    </IconButton>
+  );
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [authError, setAuthError] = useState("");
-  const [showDemoMessage, setShowDemoMessage] = useState(false);
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const [isGoogleLoading, setIsGoogleLoading] =
+    useState(false);
+
+  const [authError, setAuthError] =
+    useState("");
+
+  const [showDemoMessage, setShowDemoMessage] =
+    useState(false);
 
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+
+    formState: {
+      errors,
+      isSubmitting,
+    },
   } = useForm<LoginFormValues>({
     defaultValues: {
       email: "",
       password: "",
-      rememberMe: false,
     },
+
     mode: "onBlur",
   });
 
-  const handleEmailLogin = async (values: LoginFormValues) => {
+  const handleEmailLogin = async (
+    values: LoginFormValues,
+  ) => {
     console.log("Validated values:", values);
+
     setShowDemoMessage(true);
   };
 
@@ -61,12 +157,19 @@ export function LoginPage() {
     setIsGoogleLoading(true);
 
     try {
-      await signInWithPopup(auth, googleProvider);
+      await signInWithPopup(
+        auth,
+        googleProvider,
+      );
+
       navigate("/token");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Google login failed.";
-      setAuthError(errorMessage);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Google login failed.";
+
+      setAuthError(message);
     } finally {
       setIsGoogleLoading(false);
     }
@@ -76,343 +179,456 @@ export function LoginPage() {
     <Box
       sx={{
         minHeight: "100vh",
+        backgroundColor: "#ffffff",
         display: "grid",
+
         gridTemplateColumns: {
           xs: "1fr",
-          md: "1fr 1fr",
+          md: "0.9fr 1.1fr",
+        },
+
+        padding: {
+          xs: 0,
+          md: 3,
+        },
+
+        gap: {
+          md: 2,
         },
       }}
     >
+      {/* Left login section */}
+
       <Box
+        component="main"
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: {
-            xs: 2.5,
-            sm: 5,
+
+          paddingX: {
+            xs: 3,
+            sm: 7,
+            md: 5,
+          },
+
+          paddingY: {
+            xs: 5,
+            md: 2,
           },
         }}
       >
-        <Paper
-          elevation={0}
+        <Stack
+          spacing={0}
           sx={{
             width: "100%",
-            maxWidth: 500,
-            padding: {
-              xs: 2,
-              sm: 4,
-            },
-            backgroundColor: "transparent",
+            maxWidth: 410,
           }}
         >
-          <Stack spacing={1}>
-            <Box>
-       <Typography
-  variant="h4"
-  sx={{
-    fontWeight: "bold",
-    textAlign: "center",
-    fontFamily: "Poppins, sans-serif",
-    fontSize: "3.2rem",
-  }}
->
-  Welcome back!
-</Typography>
+          <Typography
+            component="h1"
+            sx={{
+              fontSize: {
+                xs: "2.35rem",
+                sm: "2.75rem",
+              },
 
-         
-<Typography
-  color="text.secondary"
-  sx={{
-    marginTop: 1,
-    marginBottom: 5,
-    paddingX: 3,
-    textAlign: "center",
-  }}
->
-  <Box component="div" sx={{ whiteSpace: "nowrap" }}>
-    Simplify your workflow and boost your productivity
-  </Box>
+              lineHeight: 1.1,
+              fontWeight: 800,
+              letterSpacing: "-0.045em",
+              textAlign: "center",
+              color: "#0a0a0a",
+            }}
+          >
+            Welcome back!
+          </Typography>
 
-  <Box component="div" sx={{ whiteSpace: "nowrap", }}>
-    with{" "}
-    <Box component="span" sx={{ fontWeight: "bold" }}>
-      Tugas's
-    </Box>{" "}
-    App. Get started for free.
-  </Box>
-</Typography>
-           
-            </Box>
+          <Typography
+            color="text.secondary"
+            sx={{
+              marginTop: 1.5,
+              marginBottom: 5,
+              marginX: "auto",
+              maxWidth: 345,
+              fontSize: 13,
+              lineHeight: 1.55,
+              textAlign: "center",
+            }}
+          >
+            Simplify your workflow and boost your
+            productivity
+            <br />
 
-            {authError && <Alert severity="error">{authError}</Alert>}
-
+            with{" "}
             <Box
-              component="form"
-              noValidate
-              onSubmit={handleSubmit(handleEmailLogin)}
+              component="span"
+              sx={{
+                fontWeight: 700,
+                color: "#222222",
+              }}
             >
-              <Stack spacing={1}>
-  {/* Email field */}
-  <Controller
-    name="email"
-    control={control}
-    rules={{
-      required: "Email address is required",
-      pattern: {
-        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        message: "Enter a valid email address",
-      },
-    }}
-    render={({ field }) => (
-      <TextField
-        {...field}
-        label="Email address"
-        type="email"
-        autoComplete="email"
-        error={Boolean(errors.email)}
-        helperText={errors.email?.message}
-        fullWidth
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            borderRadius: 2,
+              Tuga&apos;s App.
+            </Box>{" "}
+            Get started for free.
+          </Typography>
 
-            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#22c55e",
-              borderWidth: "2px",
-            },
-          },
+          {authError && (
+            <Alert
+              severity="error"
+              sx={{ marginBottom: 2 }}
+            >
+              {authError}
+            </Alert>
+          )}
 
-          "& .MuiOutlinedInput-input": {
-            paddingLeft: "16px",
-          },
+          <Box
+            component="form"
+            noValidate
+            onSubmit={handleSubmit(
+              handleEmailLogin,
+            )}
+          >
+            <Stack spacing={1.5}>
+              {/* Email field */}
 
-          "& .MuiInputLabel-root.Mui-focused": {
-            color: "#22c55e",
-          },
-        }}
-      />
-    )}
-  />
+              <Controller
+                name="email"
+                control={control}
+                rules={{
+                  required:
+                    "Email address is required",
 
-  {/* Password field */}
-  <Controller
-    name="password"
-    control={control}
-    rules={{
-      required: "Password is required",
-      minLength: {
-        value: 6,
-        message: "Password must contain at least 6 characters",
-      },
-    }}
-    render={({ field }) => (
-      <TextField
-        {...field}
-        label="Password"
-        type={showPassword ? "text" : "password"}
-        autoComplete="current-password"
-        error={Boolean(errors.password)}
-        helperText={errors.password?.message}
-        fullWidth
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            borderRadius: 2,
+                  pattern: {
+                    value:
+                      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
 
-            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#22c55e",
-              borderWidth: "2px",
-            },
-          },
+                    message:
+                      "Enter a valid email address",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    placeholder="Username or email"
+                    type="email"
+                    autoComplete="email"
+                    error={Boolean(
+                      errors.email,
+                    )}
+                    helperText={
+                      errors.email?.message
+                    }
+                    size="small"
+                    fullWidth
+                    sx={fieldStyles}
+                  />
+                )}
+              />
 
-          "& .MuiOutlinedInput-input": {
-            paddingLeft: "16px",
-          },
+              {/* Password field */}
 
-          "& .MuiInputLabel-root.Mui-focused": {
-            color: "#22c55e",
-          },
-        }}
-        slotProps={{
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label={
-                    showPassword
-                      ? "Hide password"
-                      : "Show password"
-                  }
-                  onClick={() =>
-                    setShowPassword(
-                      (currentValue) => !currentValue
-                    )
-                  }
-                  edge="end"
-                >
-                  {showPassword ? (
-                    <VisibilityOff />
-                  ) : (
-                    <Visibility />
-                  )}
-                </IconButton>
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
-    )}
-  />
+              <Controller
+                name="password"
+                control={control}
+                rules={{
+                  required:
+                    "Password is required",
 
- {/* Forgot password */}
-<Link
-  href="#"
-  underline="hover"
-  sx={{
-    fontWeight: "bold",
-    fontSize: 12,
-    color: "black",
-    textAlign: "right",
-    alignSelf: "flex-end",
-    cursor: "pointer",
-    marginTop: "40px",
-  }}
->
-  Forgot password?
-</Link>
+                  minLength: {
+                    value: 6,
 
-  {/* Login button */}
-  <Button
-    type="submit"
-    variant="contained"
-    size="large"
-    disabled={isSubmitting}
-    fullWidth
-    sx={{
-      borderRadius: 2,
-      textTransform: "none",
-      fontWeight: "bold",
-      marginTop: 2,
-      backgroundColor: "black",
+                    message:
+                      "Password must contain at least 6 characters",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    placeholder="Password"
 
-      "&:hover": {
-        backgroundColor: "#16a34a",
-      },
-    }}
-  >
-    {isSubmitting ? "Logging in..." : "Login"}
-  </Button>
-</Stack>
-            </Box>
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
 
-            <Divider>or continue with</Divider>
+                    autoComplete="current-password"
 
-            <Button
-              variant="outlined"
-              color="inherit"
-              startIcon={
-                isGoogleLoading ? <CircularProgress size={19} /> : <Google />
-              }
+                    error={Boolean(
+                      errors.password,
+                    )}
+
+                    helperText={
+                      errors.password?.message
+                    }
+
+                    size="small"
+                    fullWidth
+                    sx={fieldStyles}
+
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label={
+                                showPassword
+                                  ? "Hide password"
+                                  : "Show password"
+                              }
+
+                              onClick={() =>
+                                setShowPassword(
+                                  (value) =>
+                                    !value,
+                                )
+                              }
+
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? (
+                                <VisibilityOff fontSize="small" />
+                              ) : (
+                                <Visibility fontSize="small" />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                )}
+              />
+
+              <Link
+                href="#"
+                underline="hover"
+                sx={{
+                  alignSelf: "flex-end",
+                  color: "#111111",
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                Forgot Password?
+              </Link>
+
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isSubmitting}
+                fullWidth
+
+                sx={{
+                  marginTop: "8px !important",
+                  minHeight: 48,
+                  backgroundColor: "#050505",
+                  borderRadius: 99,
+                  boxShadow: "none",
+                  fontSize: 14,
+                  textTransform: "none",
+
+                  "&:hover": {
+                    backgroundColor: "#202020",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                {isSubmitting
+                  ? "Logging in..."
+                  : "Login"}
+              </Button>
+            </Stack>
+          </Box>
+
+          <Divider
+            sx={{
+              marginY: 4,
+              color: "#777777",
+              fontSize: 12,
+
+              "&::before, &::after": {
+                borderColor: "#dedede",
+              },
+            }}
+          >
+            or continue with
+          </Divider>
+
+          {/* Social buttons */}
+
+          <Stack
+            direction="row"
+            spacing={3}
+            justifyContent="center"
+          >
+            <SocialButton
+              label="Continue with Google"
               onClick={handleGoogleLogin}
               disabled={isGoogleLoading}
             >
-              Continue with Google
-            </Button>
+              {isGoogleLoading ? (
+                <CircularProgress
+                  size={18}
+                  color="inherit"
+                />
+              ) : (
+                <Google fontSize="small" />
+              )}
+            </SocialButton>
 
-            <Typography align="center" color="text.secondary">
-              Not a member? {""}
-              <Link href="#" sx={{ fontWeight: 700,
-                color: "green",
-               }}>
-                Register now
-              </Link>
-            </Typography>
+            <SocialButton label="Continue with Apple">
+              <Apple fontSize="small" />
+            </SocialButton>
+
+            <SocialButton label="Continue with Facebook">
+              <Facebook fontSize="small" />
+            </SocialButton>
           </Stack>
-        </Paper>
-      </Box>
-     
 
+          <Typography
+            sx={{
+              marginTop: 8,
+              textAlign: "center",
+              color: "#555555",
+              fontSize: 12.5,
+            }}
+          >
+            Not a member?{" "}
+
+            <Link
+              href="#"
+              underline="hover"
+              sx={{
+                color: green,
+                fontWeight: 700,
+              }}
+            >
+              Register now
+            </Link>
+          </Typography>
+        </Stack>
+      </Box>
+
+      {/* Right illustration section */}
 
       <Box
+        component="aside"
         sx={{
           display: {
             xs: "none",
             md: "flex",
           },
-          position: "relative",
-          overflow: "hidden",
+
+          minHeight: "calc(100vh - 48px)",
+          borderRadius: 5,
+          backgroundColor: "#f1f8ee",
           alignItems: "center",
           justifyContent: "center",
-          padding: 8,
-          color: "white",
-          background:
-            "linear-gradient(145deg, #5548e8 0%, #7c65ff 52%, #9b8aff 100%)",
+          padding: 5,
+          overflow: "hidden",
         }}
       >
-        <Box
-          sx={{
-            position: "absolute",
-            width: 310,
-            height: 310,
-            borderRadius: "50%",
-            backgroundColor: "rgba(255,255,255,0.09)",
-            top: -90,
-            left: -80,
-          }}
-        />
-
-        <Box
-          sx={{
-            position: "absolute",
-            width: 420,
-            height: 420,
-            borderRadius: "50%",
-            border: "65px solid rgba(255,255,255,0.08)",
-            bottom: -170,
-            right: -140,
-          }}
-        />
-
         <Stack
-          spacing={3}
+          alignItems="center"
           sx={{
-            position: "relative",
-            zIndex: 1,
-            maxWidth: 480,
+            width: "100%",
+            maxWidth: 590,
           }}
         >
-        
+          <Box
+            component="img"
+            src={loginIllustration}
+            alt="Person organizing tasks"
 
-          <Typography variant="h3" sx={{ lineHeight: 1.12 }}>
-            Start your journey with us.
-          </Typography>
+            sx={{
+              width: "100%",
+              maxWidth: 520,
+              height: "auto",
+            }}
+          />
+
+          <Stack
+            direction="row"
+            spacing={0.7}
+            sx={{
+              marginTop: 1.5,
+              marginBottom: 3,
+            }}
+          >
+            <Box
+              sx={{
+                width: 7,
+                height: 7,
+                borderRadius: 99,
+                backgroundColor: "#d5ded2",
+              }}
+            />
+
+            <Box
+              sx={{
+                width: 7,
+                height: 7,
+                borderRadius: 99,
+                backgroundColor: "#d5ded2",
+              }}
+            />
+
+            <Box
+              sx={{
+                width: 18,
+                height: 7,
+                borderRadius: 99,
+                backgroundColor: "#111111",
+              }}
+            />
+          </Stack>
 
           <Typography
             sx={{
-              fontSize: 18,
-              color: "rgba(255,255,255,0.82)",
-              lineHeight: 1.7,
+              fontSize: {
+                md: 22,
+                lg: 25,
+              },
+
+              lineHeight: 1.35,
+              textAlign: "center",
+              color: "#171717",
             }}
           >
-            Sign in to continue and discover a simple, secure experience
-            designed around you.
+            Make your work easier and organized
+            <br />
+
+            with{" "}
+            <Box
+              component="span"
+              sx={{ fontWeight: 800 }}
+            >
+              Tuga&apos;s App
+            </Box>
           </Typography>
         </Stack>
       </Box>
 
-     
-
       <Snackbar
         open={showDemoMessage}
         autoHideDuration={4500}
-        onClose={() => setShowDemoMessage(false)}
+
+        onClose={() =>
+          setShowDemoMessage(false)
+        }
       >
         <Alert
           severity="info"
           variant="filled"
-          onClose={() => setShowDemoMessage(false)}
+
+          onClose={() =>
+            setShowDemoMessage(false)
+          }
         >
-          Validation passed. Email/password backend login is outside this
+          Validation passed. Email/password
+          backend login is outside this
           assessment.
         </Alert>
       </Snackbar>
