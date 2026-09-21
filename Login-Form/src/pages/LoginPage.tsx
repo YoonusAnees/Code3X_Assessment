@@ -20,6 +20,7 @@ import {
   Google,
   Visibility,
   VisibilityOff,
+  
 } from "@mui/icons-material";
 
 import { signInWithPopup } from "firebase/auth";
@@ -197,7 +198,7 @@ export function LoginPage() {
         },
       }}
     >
-      {/* Left login section */}
+      {/*login  */}
 
       <Box
         component="main"
@@ -234,13 +235,13 @@ export function LoginPage() {
               },
 
               lineHeight: 1.1,
-              fontWeight: 800,
+              fontWeight: 600,
               letterSpacing: "-0.045em",
               textAlign: "center",
               color: "#0a0a0a",
             }}
           >
-            Welcome back!
+            Welcome back !
           </Typography>
 
           <Typography
@@ -267,7 +268,7 @@ export function LoginPage() {
                 color: "#222222",
               }}
             >
-              Tuga&apos;s App.
+              Tuga's App.
             </Box>{" "}
             Get started for free.
           </Typography>
@@ -289,7 +290,7 @@ export function LoginPage() {
             )}
           >
             <Stack spacing={1.5}>
-              {/* Email field */}
+              {/* Email  */}
 
               <Controller
                 name="email"
@@ -309,7 +310,7 @@ export function LoginPage() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    placeholder="Username or email"
+                    placeholder="Username "
                     type="email"
                     autoComplete="email"
                     error={Boolean(
@@ -325,7 +326,7 @@ export function LoginPage() {
                 )}
               />
 
-              {/* Password field */}
+              {/* Password  */}
 
               <Controller
                 name="password"
@@ -462,6 +463,9 @@ export function LoginPage() {
             direction="row"
             spacing={3}
             justifyContent="center"
+            sx={{
+              alignSelf: "center",
+            }}
           >
             <SocialButton
               label="Continue with Google"
@@ -511,7 +515,7 @@ export function LoginPage() {
         </Stack>
       </Box>
 
-      {/* Right illustration section */}
+      {/* Right  */}
 
       <Box
         component="aside"
@@ -555,6 +559,7 @@ export function LoginPage() {
             sx={{
               marginTop: 1.5,
               marginBottom: 3,
+              alignSelf: "center",
             }}
           >
             <Box
@@ -605,7 +610,7 @@ export function LoginPage() {
               component="span"
               sx={{ fontWeight: 800 }}
             >
-              Tuga&apos;s App
+              Tuga's App
             </Box>
           </Typography>
         </Stack>
