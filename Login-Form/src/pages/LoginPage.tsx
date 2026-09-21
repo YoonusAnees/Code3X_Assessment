@@ -83,7 +83,256 @@ export function LoginPage() {
         },
       }}
     >
-      {/* Left illustration section */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: {
+            xs: 2.5,
+            sm: 5,
+          },
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            width: "100%",
+            maxWidth: 500,
+            padding: {
+              xs: 2,
+              sm: 4,
+            },
+            backgroundColor: "transparent",
+          }}
+        >
+          <Stack spacing={1}>
+            <Box>
+       <Typography
+  variant="h4"
+  sx={{
+    fontWeight: "bold",
+    textAlign: "center",
+    fontFamily: "Poppins, sans-serif",
+    fontSize: "3.2rem",
+  }}
+>
+  Welcome back!
+</Typography>
+
+         
+<Typography
+  color="text.secondary"
+  sx={{
+    marginTop: 1,
+    marginBottom: 5,
+    paddingX: 3,
+    textAlign: "center",
+  }}
+>
+  <Box component="div" sx={{ whiteSpace: "nowrap" }}>
+    Simplify your workflow and boost your productivity
+  </Box>
+
+  <Box component="div" sx={{ whiteSpace: "nowrap", }}>
+    with{" "}
+    <Box component="span" sx={{ fontWeight: "bold" }}>
+      Tugas's
+    </Box>{" "}
+    App. Get started for free.
+  </Box>
+</Typography>
+           
+            </Box>
+
+            {authError && <Alert severity="error">{authError}</Alert>}
+
+            <Box
+              component="form"
+              noValidate
+              onSubmit={handleSubmit(handleEmailLogin)}
+            >
+              <Stack spacing={1}>
+  {/* Email field */}
+  <Controller
+    name="email"
+    control={control}
+    rules={{
+      required: "Email address is required",
+      pattern: {
+        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        message: "Enter a valid email address",
+      },
+    }}
+    render={({ field }) => (
+      <TextField
+        {...field}
+        label="Email address"
+        type="email"
+        autoComplete="email"
+        error={Boolean(errors.email)}
+        helperText={errors.email?.message}
+        fullWidth
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            borderRadius: 2,
+
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#22c55e",
+              borderWidth: "2px",
+            },
+          },
+
+          "& .MuiOutlinedInput-input": {
+            paddingLeft: "16px",
+          },
+
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: "#22c55e",
+          },
+        }}
+      />
+    )}
+  />
+
+  {/* Password field */}
+  <Controller
+    name="password"
+    control={control}
+    rules={{
+      required: "Password is required",
+      minLength: {
+        value: 6,
+        message: "Password must contain at least 6 characters",
+      },
+    }}
+    render={({ field }) => (
+      <TextField
+        {...field}
+        label="Password"
+        type={showPassword ? "text" : "password"}
+        autoComplete="current-password"
+        error={Boolean(errors.password)}
+        helperText={errors.password?.message}
+        fullWidth
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            borderRadius: 2,
+
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#22c55e",
+              borderWidth: "2px",
+            },
+          },
+
+          "& .MuiOutlinedInput-input": {
+            paddingLeft: "16px",
+          },
+
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: "#22c55e",
+          },
+        }}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label={
+                    showPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
+                  onClick={() =>
+                    setShowPassword(
+                      (currentValue) => !currentValue
+                    )
+                  }
+                  edge="end"
+                >
+                  {showPassword ? (
+                    <VisibilityOff />
+                  ) : (
+                    <Visibility />
+                  )}
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
+        }}
+      />
+    )}
+  />
+
+ {/* Forgot password */}
+<Link
+  href="#"
+  underline="hover"
+  sx={{
+    fontWeight: "bold",
+    fontSize: 12,
+    color: "black",
+    textAlign: "right",
+    alignSelf: "flex-end",
+    cursor: "pointer",
+    marginTop: "40px",
+  }}
+>
+  Forgot password?
+</Link>
+
+  {/* Login button */}
+  <Button
+    type="submit"
+    variant="contained"
+    size="large"
+    disabled={isSubmitting}
+    fullWidth
+    sx={{
+      borderRadius: 2,
+      textTransform: "none",
+      fontWeight: "bold",
+      marginTop: 2,
+      backgroundColor: "black",
+
+      "&:hover": {
+        backgroundColor: "#16a34a",
+      },
+    }}
+  >
+    {isSubmitting ? "Logging in..." : "Login"}
+  </Button>
+</Stack>
+            </Box>
+
+            <Divider>or continue with</Divider>
+
+            <Button
+              variant="outlined"
+              color="inherit"
+              startIcon={
+                isGoogleLoading ? <CircularProgress size={19} /> : <Google />
+              }
+              onClick={handleGoogleLogin}
+              disabled={isGoogleLoading}
+            >
+              Continue with Google
+            </Button>
+
+            <Typography align="center" color="text.secondary">
+              Not a member? {""}
+              <Link href="#" sx={{ fontWeight: 700,
+                color: "green",
+               }}>
+                Register now
+              </Link>
+            </Typography>
+          </Stack>
+        </Paper>
+      </Box>
+     
+
+
       <Box
         sx={{
           display: {
@@ -132,21 +381,7 @@ export function LoginPage() {
             maxWidth: 480,
           }}
         >
-          <Box
-            sx={{
-              width: 66,
-              height: 66,
-              borderRadius: 3,
-              display: "grid",
-              placeItems: "center",
-              backgroundColor: "white",
-              color: "primary.main",
-              fontSize: 30,
-              fontWeight: 900,
-            }}
-          >
-            C3
-          </Box>
+        
 
           <Typography variant="h3" sx={{ lineHeight: 1.12 }}>
             Start your journey with us.
@@ -165,185 +400,7 @@ export function LoginPage() {
         </Stack>
       </Box>
 
-      {/* Login form section */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: {
-            xs: 2.5,
-            sm: 5,
-          },
-        }}
-      >
-        <Paper
-          elevation={0}
-          sx={{
-            width: "100%",
-            maxWidth: 460,
-            padding: {
-              xs: 2,
-              sm: 4,
-            },
-            backgroundColor: "transparent",
-          }}
-        >
-          <Stack spacing={3}>
-            <Box>
-              <Typography variant="h4" sx={{ fontWeight: 800 }}>
-                Welcome back
-              </Typography>
-
-              <Typography color="text.secondary" sx={{ marginTop: 1 }}>
-                Please enter your details to sign in.
-              </Typography>
-            </Box>
-
-            {authError && <Alert severity="error">{authError}</Alert>}
-
-            <Box
-              component="form"
-              noValidate
-              onSubmit={handleSubmit(handleEmailLogin)}
-            >
-              <Stack spacing={2.25}>
-                {/* Email field */}
-                <Controller
-                  name="email"
-                  control={control}
-                  rules={{
-                    required: "Email address is required",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Enter a valid email address",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Email address"
-                      type="email"
-                      autoComplete="email"
-                      error={Boolean(errors.email)}
-                      helperText={errors.email?.message}
-                    />
-                  )}
-                />
-
-                {/* Password field */}
-                <Controller
-                  name="password"
-                  control={control}
-                  rules={{
-                    required: "Password is required",
-                    minLength: {
-                      value: 6,
-                      message: "Password must contain at least 6 characters",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Password"
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="current-password"
-                      error={Boolean(errors.password)}
-                      helperText={errors.password?.message}
-                      slotProps={{
-                        input: {
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                aria-label={
-                                  showPassword
-                                    ? "Hide password"
-                                    : "Show password"
-                                }
-                                onClick={() =>
-                                  setShowPassword(
-                                    (currentValue) => !currentValue
-                                  )
-                                }
-                                edge="end"
-                              >
-                                {showPassword ? (
-                                  <VisibilityOff />
-                                ) : (
-                                  <Visibility />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        },
-                      }}
-                    />
-                  )}
-                />
-
-                <Stack
-                  direction="row"
-                  sx={{
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Controller
-                    name="rememberMe"
-                    control={control}
-                    render={({ field }) => (
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={field.value}
-                            onChange={field.onChange}
-                            size="small"
-                          />
-                        }
-                        label="Remember me"
-                      />
-                    )}
-                  />
-
-                  <Link href="#" underline="hover" sx={{ fontWeight: 700 }}>
-                    Forgot password?
-                  </Link>
-                </Stack>
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  size="large"
-                  disabled={isSubmitting}
-                >
-                  Sign in
-                </Button>
-              </Stack>
-            </Box>
-
-            <Divider>or</Divider>
-
-            <Button
-              variant="outlined"
-              color="inherit"
-              startIcon={
-                isGoogleLoading ? <CircularProgress size={19} /> : <Google />
-              }
-              onClick={handleGoogleLogin}
-              disabled={isGoogleLoading}
-            >
-              Continue with Google
-            </Button>
-
-            <Typography align="center" color="text.secondary">
-              Don&apos;t have an account?{" "}
-              <Link href="#" sx={{ fontWeight: 700 }}>
-                Create account
-              </Link>
-            </Typography>
-          </Stack>
-        </Paper>
-      </Box>
+     
 
       <Snackbar
         open={showDemoMessage}
