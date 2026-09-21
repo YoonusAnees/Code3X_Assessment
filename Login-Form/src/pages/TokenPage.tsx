@@ -18,6 +18,7 @@ import { auth } from "../config/firebase";
 export function TokenPage() {
   const navigate = useNavigate();
 
+  const [token, setToken] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -31,6 +32,8 @@ export function TokenPage() {
       }
 
       try {
+        const firebaseToken = await user.getIdToken();
+        setToken(firebaseToken);
       } catch {
         setError("The access token could not be loaded.");
       } finally {
@@ -74,6 +77,10 @@ export function TokenPage() {
               <Typography variant="h4" sx={{ fontWeight: 800 }}>
                 Google login successful
               </Typography>
+
+              <Typography color="text.secondary" sx={{ marginTop: 1 }}>
+                Your Firebase access token is shown below.
+              </Typography>
             </Box>
 
             {isLoading ? (
@@ -104,9 +111,16 @@ export function TokenPage() {
                   fontSize: 13,
                 }}
               >
-                Welcome to Code3x!
+                Your access token is shown below.
+                <br />
+                {token}
               </Box>
             )}
+
+            <Alert severity="warning">
+              This token is sensitive. It is displayed only to meet the
+              assessment requirement.
+            </Alert>
 
             <Button
               variant="outlined"
