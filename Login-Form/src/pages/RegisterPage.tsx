@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+
 import {
   Alert,
   Box,
@@ -15,28 +16,42 @@ import {
 } from "@mui/material";
 
 import {
-  Link as RouterLink,
-  useNavigate,
-} from "react-router-dom";
-
-import {
   Apple,
+  Close,
   Facebook,
   Google,
   Visibility,
   VisibilityOff,
-  
 } from "@mui/icons-material";
 
-import { signInWithPopup , signInWithEmailAndPassword,} from "firebase/auth";
-import { Controller, useForm } from "react-hook-form";
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  updateProfile,
+} from "firebase/auth";
+
+import {
+  Controller,
+  useForm,
+} from "react-hook-form";
+
+import {
+  Link as RouterLink,
+  useNavigate,
+} from "react-router-dom";
 
 import loginIllustration from "../assets/login-illustration.svg";
-import { auth, googleProvider } from "../config/firebase";
 
-type LoginFormValues = {
+import {
+  auth,
+  googleProvider,
+} from "../config/firebase";
+
+type RegisterFormValues = {
+  fullName: string;
   email: string;
   password: string;
+  confirmPassword: string;
 };
 
 type SocialButtonProps = {
@@ -98,9 +113,6 @@ function SocialButton({
         backgroundColor: "#050505",
         color: "#ffffff",
 
-        transition:
-          "transform 160ms ease, background-color 160ms ease",
-
         "&:hover": {
           backgroundColor: "#272727",
           transform: "translateY(-2px)",
@@ -110,6 +122,9 @@ function SocialButton({
           backgroundColor: "#555555",
           color: "#ffffff",
         },
+
+        transition:
+          "transform 160ms ease, background-color 160ms ease",
       }}
     >
       {children}
@@ -117,109 +132,135 @@ function SocialButton({
   );
 }
 
-export function LoginPage() {
+export function RegisterPage() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] =
     useState(false);
 
-  const [isGoogleLoading, setIsGoogleLoading] =
-    useState(false);
+  const [
+    showConfirmPassword,
+    setShowConfirmPassword,
+  ] = useState(false);
 
-  const [authError, setAuthError] =
+  const [
+    isGoogleLoading,
+    setIsGoogleLoading,
+  ] = useState(false);
+
+  const [registerError, setRegisterError] =
     useState("");
+
+  const [showSuccess, setShowSuccess] =
+    useState(false);
 
   const {
     control,
     handleSubmit,
+    watch,
 
     formState: {
       errors,
       isSubmitting,
     },
-  } = useForm<LoginFormValues>({
+  } = useForm<RegisterFormValues>({
     defaultValues: {
+      fullName: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
 
     mode: "onBlur",
   });
 
-  const handleEmailLogin = async (
-  values: LoginFormValues,
-) => {
-  setAuthError("");
+  const passwordValue = watch("password");
 
-  try {
-    await signInWithEmailAndPassword(
-      auth,
-      values.email,
-      values.password,
-    );
-
-    navigate("/token");
-  } catch (error) {
-    if (error instanceof Error) {
-      if (
-        error.message.includes(
-          "auth/invalid-credential",
-        )
-      ) {
-        setAuthError(
-          "Incorrect email address or password.",
-        );
-      } else if (
-        error.message.includes(
-          "auth/invalid-email",
-        )
-      ) {
-        setAuthError(
-          "Please enter a valid email address.",
-        );
-      } else if (
-        error.message.includes(
-          "auth/too-many-requests",
-        )
-      ) {
-        setAuthError(
-          "Too many login attempts. Please try again later.",
-        );
-      } else {
-        setAuthError(
-          "Login failed. Please try again.",
-        );
-      }
-    } else {
-      setAuthError(
-        "Login failed. Please try again.",
-      );
-    }
-  }
-};
-
-  const handleGoogleLogin = async () => {
-    setAuthError("");
-    setIsGoogleLoading(true);
+  const handleRegister = async (
+    values: RegisterFormValues,
+  ) => {
+    setRegisterError("");
 
     try {
-      await signInWithPopup(
-        auth,
-        googleProvider,
+      const userCredential =
+        await createUserWithEmailAndPassword(
+          auth,
+          values.email,
+          values.password,
+        );
+
+      await updateProfile(
+        userCredential.user,
+        {
+          displayName: values.fullName,
+        },
       );
 
-      navigate("/token");
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Google login failed.";
+      setShowSuccess(true);
 
-      setAuthError(message);
-    } finally {
-      setIsGoogleLoading(false);
+      setTimeout(() => {
+        navigate("/token");
+      }, 800);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (
+          error.message.includes(
+            "auth/email-already-in-use",
+          )
+        ) {
+          setRegisterError(
+            "This email address is already registered.",
+          );
+        } else if (
+          error.message.includes(
+            "auth/weak-password",
+          )
+        ) {
+          setRegisterError(
+            "Please enter a stronger password.",
+          );
+        } else if (
+          error.message.includes(
+            "auth/invalid-email",
+          )
+        ) {
+          setRegisterError(
+            "Please enter a valid email address.",
+          );
+        } else {
+          setRegisterError(error.message);
+        }
+      } else {
+        setRegisterError(
+          "Registration failed. Please try again.",
+        );
+      }
     }
   };
+
+  const handleGoogleRegister =
+    async () => {
+      setRegisterError("");
+      setIsGoogleLoading(true);
+
+      try {
+        await signInWithPopup(
+          auth,
+          googleProvider,
+        );
+
+        navigate("/token");
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Google registration failed.";
+
+        setRegisterError(message);
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    };
 
   return (
     <Box
@@ -243,7 +284,7 @@ export function LoginPage() {
         },
       }}
     >
-      {/*login  */}
+      {/* Registration form */}
 
       <Box
         component="main"
@@ -275,37 +316,33 @@ export function LoginPage() {
             component="h1"
             sx={{
               fontSize: {
-                xs: "2.35rem",
-                sm: "2.75rem",
+                xs: "2.25rem",
+                sm: "2.65rem",
               },
 
               lineHeight: 1.1,
-              fontWeight: 600,
+              fontWeight: 800,
               letterSpacing: "-0.045em",
               textAlign: "center",
               color: "#0a0a0a",
             }}
           >
-            Welcome back !
+            Create account
           </Typography>
 
           <Typography
             color="text.secondary"
             sx={{
               marginTop: 1.5,
-              marginBottom: 5,
-              marginX: "auto",
-              maxWidth: 345,
+              marginBottom: 3,
+              textAlign: "center",
               fontSize: 13,
               lineHeight: 1.55,
-              textAlign: "center",
             }}
           >
-            Simplify your workflow and boost your
-            productivity
-            <br />
+            Register and start organizing your
+            work with{" "}
 
-            with{" "}
             <Box
               component="span"
               sx={{
@@ -313,17 +350,16 @@ export function LoginPage() {
                 color: "#222222",
               }}
             >
-              Tuga's App.
-            </Box>{" "}
-            Get started for free.
+              Tuga&apos;s App.
+            </Box>
           </Typography>
 
-          {authError && (
+          {registerError && (
             <Alert
               severity="error"
               sx={{ marginBottom: 2 }}
             >
-              {authError}
+              {registerError}
             </Alert>
           )}
 
@@ -331,11 +367,44 @@ export function LoginPage() {
             component="form"
             noValidate
             onSubmit={handleSubmit(
-              handleEmailLogin,
+              handleRegister,
             )}
           >
-            <Stack spacing={1.5}>
-              {/* Email  */}
+            <Stack spacing={1.4}>
+              {/* Full name */}
+
+              <Controller
+                name="fullName"
+                control={control}
+                rules={{
+                  required:
+                    "Full name is required",
+
+                  minLength: {
+                    value: 2,
+                    message:
+                      "Name must contain at least 2 characters",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    placeholder="Full name"
+                    autoComplete="name"
+                    error={Boolean(
+                      errors.fullName,
+                    )}
+                    helperText={
+                      errors.fullName?.message
+                    }
+                    size="small"
+                    fullWidth
+                    sx={fieldStyles}
+                  />
+                )}
+              />
+
+              {/* Email */}
 
               <Controller
                 name="email"
@@ -355,7 +424,7 @@ export function LoginPage() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    placeholder="Username "
+                    placeholder="Email address"
                     type="email"
                     autoComplete="email"
                     error={Boolean(
@@ -371,7 +440,7 @@ export function LoginPage() {
                 )}
               />
 
-              {/* Password  */}
+              {/* Password */}
 
               <Controller
                 name="password"
@@ -382,7 +451,6 @@ export function LoginPage() {
 
                   minLength: {
                     value: 6,
-
                     message:
                       "Password must contain at least 6 characters",
                   },
@@ -398,7 +466,7 @@ export function LoginPage() {
                         : "password"
                     }
 
-                    autoComplete="current-password"
+                    autoComplete="new-password"
 
                     error={Boolean(
                       errors.password,
@@ -430,7 +498,6 @@ export function LoginPage() {
                                 )
                               }
 
-                              edge="end"
                               size="small"
                             >
                               {showPassword ? (
@@ -439,6 +506,23 @@ export function LoginPage() {
                                 <Visibility fontSize="small" />
                               )}
                             </IconButton>
+
+                            {field.value && (
+                              <IconButton
+                                aria-label="Clear password"
+
+                                onClick={() =>
+                                  field.onChange(
+                                    "",
+                                  )
+                                }
+
+                                edge="end"
+                                size="small"
+                              >
+                                <Close fontSize="small" />
+                              </IconButton>
+                            )}
                           </InputAdornment>
                         ),
                       },
@@ -447,18 +531,95 @@ export function LoginPage() {
                 )}
               />
 
-              <Link
-                href="#"
-                underline="hover"
-                sx={{
-                  alignSelf: "flex-end",
-                  color: "#111111",
-                  fontSize: 12,
-                  fontWeight: 600,
+              {/* Confirm password */}
+
+              <Controller
+                name="confirmPassword"
+                control={control}
+                rules={{
+                  required:
+                    "Please confirm your password",
+
+                  validate: (value) =>
+                    value === passwordValue ||
+                    "Passwords do not match",
                 }}
-              >
-                Forgot Password?
-              </Link>
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    placeholder="Confirm password"
+
+                    type={
+                      showConfirmPassword
+                        ? "text"
+                        : "password"
+                    }
+
+                    autoComplete="new-password"
+
+                    error={Boolean(
+                      errors.confirmPassword,
+                    )}
+
+                    helperText={
+                      errors.confirmPassword
+                        ?.message
+                    }
+
+                    size="small"
+                    fullWidth
+                    sx={fieldStyles}
+
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label={
+                                showConfirmPassword
+                                  ? "Hide password"
+                                  : "Show password"
+                              }
+
+                              onClick={() =>
+                                setShowConfirmPassword(
+                                  (value) =>
+                                    !value,
+                                )
+                              }
+
+                              size="small"
+                            >
+                              {showConfirmPassword ? (
+                                <VisibilityOff fontSize="small" />
+                              ) : (
+                                <Visibility fontSize="small" />
+                              )}
+                            </IconButton>
+
+                            {field.value && (
+                              <IconButton
+                                aria-label="Clear confirmed password"
+
+                                onClick={() =>
+                                  field.onChange(
+                                    "",
+                                  )
+                                }
+
+                                edge="end"
+                                size="small"
+                              >
+                                <Close fontSize="small" />
+                              </IconButton>
+                            )}
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                )}
+              />
 
               <Button
                 type="submit"
@@ -467,12 +628,11 @@ export function LoginPage() {
                 fullWidth
 
                 sx={{
-                  marginTop: "8px !important",
+                  marginTop: "10px !important",
                   minHeight: 48,
-                  backgroundColor: "#050505",
                   borderRadius: 99,
+                  backgroundColor: "#050505",
                   boxShadow: "none",
-                  fontSize: 14,
                   textTransform: "none",
 
                   "&:hover": {
@@ -481,16 +641,21 @@ export function LoginPage() {
                   },
                 }}
               >
-                {isSubmitting
-                  ? "Logging in..."
-                  : "Login"}
+                {isSubmitting ? (
+                  <CircularProgress
+                    size={21}
+                    color="inherit"
+                  />
+                ) : (
+                  "Register"
+                )}
               </Button>
             </Stack>
           </Box>
 
           <Divider
             sx={{
-              marginY: 4,
+              marginY: 2.5,
               color: "#777777",
               fontSize: 12,
 
@@ -502,8 +667,6 @@ export function LoginPage() {
             or continue with
           </Divider>
 
-          {/* Social buttons */}
-
           <Stack
             direction="row"
             spacing={3}
@@ -513,8 +676,8 @@ export function LoginPage() {
             }}
           >
             <SocialButton
-              label="Continue with Google"
-              onClick={handleGoogleLogin}
+              label="Register with Google"
+              onClick={handleGoogleRegister}
               disabled={isGoogleLoading}
             >
               {isGoogleLoading ? (
@@ -527,41 +690,42 @@ export function LoginPage() {
               )}
             </SocialButton>
 
-            <SocialButton label="Continue with Apple">
+            <SocialButton label="Register with Apple">
               <Apple fontSize="small" />
             </SocialButton>
 
-            <SocialButton label="Continue with Facebook">
+            <SocialButton label="Register with Facebook">
               <Facebook fontSize="small" />
             </SocialButton>
           </Stack>
 
           <Typography
             sx={{
-              marginTop: 8,
+              marginTop: 3,
               textAlign: "center",
               color: "#555555",
               fontSize: 12.5,
             }}
           >
-            Not a member?{" "}
+            Already a member?{" "}
 
-           <Link
-  component={RouterLink}
-  to="/register"
-  underline="hover"
-  sx={{
-    color: green,
-    fontWeight: 700,
-  }}
->
-  Register now
-</Link>
+            <Link
+              component={RouterLink}
+              to="/"
+              underline="hover"
+
+              sx={{
+                color: green,
+                fontWeight: 700,
+              }}
+            >
+              Login now
+            </Link>
           </Typography>
         </Stack>
       </Box>
 
-      {/* Right  */}
+      {/* Right illustration */}
 
       <Box
         component="aside"
@@ -602,10 +766,10 @@ export function LoginPage() {
           <Stack
             direction="row"
             spacing={0.7}
+
             sx={{
               marginTop: 1.5,
               marginBottom: 3,
-              alignSelf: "center",
             }}
           >
             <Box
@@ -648,7 +812,8 @@ export function LoginPage() {
               color: "#171717",
             }}
           >
-            Make your work easier and organized
+            Create your account and organize
+            your work
             <br />
 
             with{" "}
@@ -656,13 +821,33 @@ export function LoginPage() {
               component="span"
               sx={{ fontWeight: 800 }}
             >
-              Tuga's App
+              Tuga&apos;s App
             </Box>
           </Typography>
         </Stack>
       </Box>
+
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={3000}
+
+        onClose={() =>
+          setShowSuccess(false)
+        }
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+
+          onClose={() =>
+            setShowSuccess(false)
+          }
+        >
+          Account created successfully.
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
 
-export default LoginPage;
+export default RegisterPage;

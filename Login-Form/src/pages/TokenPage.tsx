@@ -125,6 +125,7 @@ export function TokenPage() {
               onClick={handleSignOut}
               sx={{
                 alignSelf: "flex-start",
+                color: "error.main"
               }}
             >
               Sign out
