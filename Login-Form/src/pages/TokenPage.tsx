@@ -117,10 +117,7 @@ export function TokenPage() {
               </Box>
             )}
 
-            <Alert severity="warning">
-              This token is sensitive. It is displayed only to meet the
-              assessment requirement.
-            </Alert>
+           
 
             <Button
               variant="outlined"
